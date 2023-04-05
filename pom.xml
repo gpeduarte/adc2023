@@ -2,14 +2,14 @@
   
   <modelVersion>4.0.0</modelVersion>
   
-  <groupId>Firstwebapp</groupId>
-  <artifactId>Firstwebapp</artifactId>
+  <groupId>Individual_Project_Application</groupId>
+  <artifactId>Individual_Project_Application</artifactId>
   <version>0.0.1</version>
   
   <packaging>war</packaging>
   
-  <name>FirstWebApplication</name>
-  <description>ADC 2023 Example Application</description>
+  <name>Individual Project Application</name>
+  <description>ADC 2023 Individual Project</description>
 
   <properties>
 		<appengine.maven.plugin.version>2.4.0</appengine.maven.plugin.version>
@@ -109,6 +109,18 @@
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-api-1.0-sdk</artifactId>
 			<version>2.0.11</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-tasks</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-datastore</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-storage</artifactId>
 		</dependency>
 	</dependencies>
 
