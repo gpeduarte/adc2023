@@ -18,6 +18,7 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Transaction;
 
+import pt.unl.fct.di.apdc.webapp.util.AuthToken;
 import pt.unl.fct.di.apdc.webapp.util.ProfileData;
 
 @Path("/profile")
@@ -35,7 +36,7 @@ public class ProfileFillingResource {
 	@PUT
 	@Path("/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response profileFill(@PathParam("username") String username, ProfileData data) {
+	public Response profileFill(@PathParam("username") String username, ProfileData data, AuthToken token) {
 		
 		LOG.info("User " + username + " attempted updating profile.");
 		
@@ -58,10 +59,15 @@ public class ProfileFillingResource {
 				return Response.status(Status.BAD_REQUEST).build();
 			}
 			
-			Entity token = txn.get(tokenKey);
+			Entity userToken = txn.get(tokenKey);
 			
-			if(token.getLong("token_ed") < System.currentTimeMillis()) {
+			if((userToken.getLong("token_ed") != token.expirationData) || userToken.getLong("token_ed") < System.currentTimeMillis()) {
 				LOG.warning("User token has expired.");
+				return Response.status(Status.FORBIDDEN).build();
+			}
+			
+			if(!userToken.getString("token_username").equals(token.username)) {
+				LOG.severe("Token not accepted.");
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			
@@ -137,7 +143,7 @@ public class ProfileFillingResource {
 					.set("user_mobile_phone_num", newMobilePhone)
 					.set("user_occupation", newOccupation)
 					.set("user_working_place", newWorkingPlace)
-					.set("user_addres", newAddress)
+					.set("user_address", newAddress)
 					.set("user_city", newCity)
 					.set("user_cp", newCP)
 					.set("user_nif", newNIF)
