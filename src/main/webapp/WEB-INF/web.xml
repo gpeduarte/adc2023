@@ -7,7 +7,7 @@
 	<display-name>Bob 1.0</display-name>
 
 	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
+		<welcome-file>enter_page.html</welcome-file>
 	</welcome-file-list>
 	<error-page>
 		<error-code>404</error-code>
@@ -54,29 +54,11 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-			
-	<servlet>
-		<servlet-name>servlet-storage</servlet-name>
-		<servlet-class>pt.unl.fct.di.apdc.webapp.servlets.MediaResourceServlet</servlet-class>
-	</servlet>
 	
 	<servlet-mapping>
 		<servlet-name>MainServices</servlet-name>
 		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>servlet-storage</servlet-name>
-		<url-pattern>/gcs/*</url-pattern>
-	</servlet-mapping>
-	
-	<security-constraint>
-		<web-resource-collection>
-			<web-resource-name>Restricted Area</web-resource-name>
-			<url-pattern>/secret/*</url-pattern>
-		</web-resource-collection>
-		<auth-constraint>
-			<role-name>admin</role-name>
-		</auth-constraint>
-	</security-constraint>
+			
 
 </web-app>

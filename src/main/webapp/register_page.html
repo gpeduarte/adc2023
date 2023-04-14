@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+    <title>Register Page</title>
+</head>
+
+<body>
+
+    <style>
+        h1 {text-align: center;}
+        form {text-align: center;}
+    </style>
+
+    <h1>Register</h1>
+
+    <h3>Please fill in your data.</h3>
+
+    <form>
+        <label for="username">Username</label>
+        <input type="text" name="name" id="username" />
+
+        <p></p>
+
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" />
+
+        <p></p>
+
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" />
+
+        <p></p>
+
+        <label for="password">Password</label>
+        <input type="password" name="password" id="pwd" />
+
+        <p></p>
+
+        <button onclick="sendJSON()">Register</button>
+    </form>
+
+    <script>
+       
+        function sendJSON(){
+            
+            let username = document.getElementById('username');
+            let email = document.getElementById('email');
+            let name = document.getElementById('name');
+            let password = document.getElementById('pwd');
+
+            let xhr = new XMLHttpRequest();
+            let url = "/rest/register/userregister";
+
+            xhr.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+
+                    window.location.href="enter_page.html";
+
+                } else {
+
+                    var response = document.getElementById("response");
+                    var responseElement = document.createElement("h3");
+                    responseElement.innerText = xhr.responseText;
+                    response.appendChild(responseElement);
+                    
+                }
+            }
+
+            xhr.open("POST", url);
+
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+            var data = JSON.stringify({ username : username.value, email : email.value, name : name.value, password : password.value, role : "user" });
+ 
+            xhr.send(data);
+
+        }
+
+    </script>
+
+</body>
+
+</html>

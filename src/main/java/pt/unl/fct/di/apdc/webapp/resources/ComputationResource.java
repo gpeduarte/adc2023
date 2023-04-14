@@ -60,7 +60,7 @@ public class ComputationResource {
 	@GET
 	@Path("/compute")
 	public Response triggerExecuteComputeTask() throws IOException {
-		String projectId = "buoyant-site-379310";
+		String projectId = "adc-individual-project";
 		String queueName = "Default";
 		String location = "europe-west6";
 		LOG.log(Level.INFO, projectId + " :: " + queueName + " :: " + location );

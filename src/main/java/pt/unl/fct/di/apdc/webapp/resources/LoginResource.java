@@ -2,12 +2,11 @@ package pt.unl.fct.di.apdc.webapp.resources;
 
 import java.util.logging.Logger;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -15,8 +14,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.codec.digest.DigestUtils;
-
-import javax.ws.rs.POST;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
@@ -29,8 +26,7 @@ import com.google.cloud.datastore.StringValue;
 import com.google.cloud.datastore.Transaction;
 import com.google.gson.Gson;
 
-import pt.unl.fct.di.apdc.webapp.util.AuthToken;
-import pt.unl.fct.di.apdc.webapp.util.LoginData;
+import pt.unl.fct.di.apdc.webapp.util.*;
 
 @Path("/login")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -60,13 +56,13 @@ public class LoginResource {
 		Key ctrsKey = datastore.newKeyFactory()
 				.addAncestors(PathElement.of("User", data.username))
 				.setKind("UserStats").newKey("counters");
-		Key logKey = datastore.allocateId(
-				datastore.newKeyFactory()
+		Key logKey = datastore.newKeyFactory()
 				.addAncestors(PathElement.of("User", data.username))
-				.setKind("UserLog").newKey()
-				);
+				.setKind("UserLog").newKey("logs");
 		Transaction txn = datastore.newTransaction();
+
 		try {
+
 			Entity user = txn.get(userKey);
 			if(user == null) {
 				LOG.warning("Failed login attempt for username: " + data.username);
@@ -101,10 +97,17 @@ public class LoginResource {
 						.set("user_first_login", stats.getTimestamp("user_first_login"))
 						.set("user_last_login", Timestamp.now())
 						.build();
-				txn.put(log, ustats);
+				AuthToken token = new AuthToken(data.username);
+				Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(token.username);
+				Entity tokens = Entity.newBuilder(tokenKey)
+						.set("token_id", token.tokenID)
+						.set("token_username", token.username)
+						.set("token_cd", token.creationData)
+						.set("token_ed", token.expirationData)
+						.build();
+				txn.put(log, ustats, tokens);
 				txn.commit();
 				
-				AuthToken token = new AuthToken(data.username);
 				LOG.info("User '" + data.username + "' logged in sucessfully");
 				return Response.ok(g.toJson(token)).build();
 			} else {
@@ -113,7 +116,7 @@ public class LoginResource {
 						.set("user_stats_failed", 1L + stats.getLong("user_stats_failed"))
 						.set("user_first_login", stats.getTimestamp("user_first_login"))
 						.set("user_last_login", stats.getTimestamp("user_last_login"))
-						.set("user_kast_attempt", Timestamp.now())
+						.set("user_last_attempt", Timestamp.now())
 						.build();
 				txn.put(ustats);
 				txn.commit();

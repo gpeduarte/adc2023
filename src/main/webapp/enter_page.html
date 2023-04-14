@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+    <head>
+        <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+    <title>Individual Application</title>
+    </head>
+
+    <body>
+        <style>
+            h1 {text-align: center;}
+        </style>
+
+        <h1>Welcome to ADC Individual Project Application.</h1>
+
+        <hr>
+
+        <style>
+            h2 {text-align: center;}
+            h4 {text-align: center;}
+        </style>
+
+        <h2>This an application for the individual project of the ADC class.</h2>
+
+        <h4>Please select your option.</h4>
+
+        <style>
+            .container {
+              height: 200px;
+              position: relative;
+            }
+            
+            .center {
+              margin: 0;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              -ms-transform: translate(-50%, -50%);
+              transform: translate(-50%, -50%);
+            }
+        </style>
+            
+        <div class="container">
+          <div class="center">
+              <button onclick="goToLoginPage()">Login</button>
+              <button onclick="goToRegisterPage()">Register</button>
+          </div>
+        </div>
+        
+
+    </body>
+
+    <script>
+
+        function goToLoginPage(){
+            window.location.href="login_page.html";
+        }
+
+        function goToRegisterPage(){
+            window.location.href="register_page.html";
+        }
+
+    </script>
+
+</html>

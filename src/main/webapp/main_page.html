@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+    <title>Main Page</title>
+</head>
+
+<body>
+
+    <style>
+        h1 {text-align: center;}
+    </style>
+
+    <h1>Welcome to the Project Main Page</h1>
+
+    <style>
+        div {border: 1px solid black}
+    </style>
+
+    <div id="token">
+
+            <h3> Your Token: </h3>
+
+    </div>
+
+</body>
+
+<script>
+
+    if(this.status == 200){
+        
+        var tokenDiv = document.getElementById("token");
+
+        console.log(localStorage.getItem('token'));
+
+        tokenDiv.appendChild(localStorage.getItem('token'));
+
+    }
+
+</script>
+
+</html>

@@ -36,33 +36,57 @@ public class RegisterResource {
 	public Response doRegisterUser(RegisterData data) {
 		LOG.fine("Creating user: " + data.username);
 		
-		//Checks input data
 		if(!data.validRegistration() ) {
-			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+			LOG.severe("Wrong or missing parameters.");
+			return Response.status(Status.BAD_REQUEST).build();
 		}
 		
 		Transaction txn = datastore.newTransaction();
 		try {
 			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+			
 			Entity user = txn.get(userKey);
+			
+			String role = "user";
+			
+			if(data.username.equals("super_user"))
+				role = "su";
+			
 			if(user != null) {
 				txn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User already exists.").build();
 			} else {
 				user = Entity.newBuilder(userKey)
+						.set("user_username", data.username)
 						.set("user_name", data.name)
 						.set("user_pwd", DigestUtils.sha3_512Hex(data.password))
 						.set("user_email", data.email)
 						.set("user_creation_time", Timestamp.now())
+						.set("user_role", role)
+						.set("user_isActive", false)
+						.set("user_profile_status", data.profileStatus)
+						.set("user_phone_num", data.phoneNum)
+						.set("user_mobile_phone_num", data.mobilePhone)
+						.set("user_occupation", data.occupation)
+						.set("user_working_place", data.workingPlace)
+						.set("user_address", data.address)
+						.set("user_city", data.city)
+						.set("user_cp", data.cp)
+						.set("user_nif", data.nif)
 						.build();
+				
 				txn.add(user);
-				LOG.info("User registered " + data.username);
 				txn.commit();
-				return Response.ok("{}").build();
+				
+				LOG.info("User registered " + data.username);
+				return Response.ok().build();
 			}
 		} finally {
-			if(txn.isActive())
+			if(txn.isActive()) {
 				txn.rollback();
+				LOG.warning("Failed to register user: " + data.username);
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
 		}
 	}
 }

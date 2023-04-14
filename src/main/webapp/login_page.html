@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+    <head>
+        <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+        <title>Login Page</title>
+    </head>
+
+    <body>
+
+        <style>
+            h1 {text-align: center;}
+            form {text-align: center;}
+        </style>
+
+        <h1>Login</h1>
+
+        <form>
+            <label for="username">Username</label>
+            <input type="text" name="name" id="username" />
+
+            <p></p>
+
+            <label for="pwd">Password</label>
+            <input type="password" name="password" id="pwd" />
+
+            <p></p>
+
+            <button onclick="sendJSON()">Login</button>
+        </form>
+
+        <div id="response"></div>
+
+    </body>
+
+    <script>
+       
+        function sendJSON(){
+            
+            let inUsername = document.getElementById('username');
+            let inPassword = document.getElementById('pwd');
+
+            let xhr = new XMLHttpRequest();
+            let url = "/rest/login/";
+
+            xhr.open("POST", url, true);
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+
+                    if(xhr.status == 200){
+
+                        const json = JSON.parse(xhr.responseText);
+                        localStorage.setItem('token', "Username: " + json.username + "\n" + "Role: " + json.role + "\n" + "TokenID: " + json.tokenID + "\n" + "CreationData: " + json.creationData + "\n" + "ExpirationData: " + json.expirationData);
+                        window.location.href="main_page.html";
+
+                    } else {
+
+                        var response = document.getElementById("response");
+                        var responseElement = document.createElement("h3");
+
+                        responseElement.innerText = xhr.responseText;
+                        response.appendChild(responseElement);
+
+                    }
+                    
+                }
+            }
+
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+            const origData = { username : inUsername.value , password : inPassword.value }
+
+            var data = JSON.stringify(origData);
+
+            xhr.send(data);
+
+        }
+
+    </script>
+
+</html>
