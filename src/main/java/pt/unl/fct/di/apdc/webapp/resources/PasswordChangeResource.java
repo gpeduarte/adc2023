@@ -24,7 +24,7 @@ import pt.unl.fct.di.apdc.webapp.util.AuthToken;
 import pt.unl.fct.di.apdc.webapp.util.PasswordData;
 
 @Path("/changepassword")
-@Produces(MediaType.APPLICATION_JSON + "charset=utf-8")
+@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class PasswordChangeResource {
 	
 private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
@@ -38,7 +38,7 @@ private static final Logger LOG = Logger.getLogger(LoginResource.class.getName()
 	@PUT
 	@Path("/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response changePassword(@PathParam("username") String username, PasswordData passwords, AuthToken token) {
+	public Response changePassword(@PathParam("username") String username, PasswordData passwords) {
 		
 		LOG.info("User " + username + " attempt of changing password");
 		

@@ -18,7 +18,6 @@ import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Transaction;
 
-import pt.unl.fct.di.apdc.webapp.util.AuthToken;
 import pt.unl.fct.di.apdc.webapp.util.DeletionData;
 
 @Path("/remove")
@@ -37,7 +36,7 @@ public class RemoveUserResource {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response removeUser(DeletionData data, AuthToken token) {
+	public Response removeUser(DeletionData data) {
 		
 		LOG.info("Deletion of user: " + data.delUsername + " by user: " + data.username);
 		
@@ -60,12 +59,12 @@ public class RemoveUserResource {
 			
 			Entity userToken = txn.get(datastore.newKeyFactory().setKind("Tokens").newKey(data.username));
 			
-			if((userToken.getLong("token_ed") != token.expirationData) || userToken.getLong("token_ed") < System.currentTimeMillis()) {
+			if((userToken.getLong("token_ed") != data.token.expirationData) || userToken.getLong("token_ed") < System.currentTimeMillis()) {
 				LOG.warning("User token has expired.");
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			
-			if(!userToken.getString("token_username").equals(token.username)) {
+			if(!userToken.getString("token_username").equals(data.token.username)) {
 				LOG.severe("Token not accepted.");
 				return Response.status(Status.FORBIDDEN).build();
 			}
