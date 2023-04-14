@@ -43,7 +43,7 @@ private static final Logger LOG = Logger.getLogger(LoginResource.class.getName()
 		LOG.info("User " + username + " attempt of changing password");
 		
 		Key userKey = userKeyFactory.newKey(username);
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(token.tokenID);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(passwords.token.tokenID);
 		
 		Transaction txn = datastore.newTransaction();
 		
@@ -51,12 +51,12 @@ private static final Logger LOG = Logger.getLogger(LoginResource.class.getName()
 			
 			Entity userToken = txn.get(tokenKey);
 			
-			if((userToken.getLong("token_ed") != token.expirationData) || userToken.getLong("token_ed") < System.currentTimeMillis()) {
+			if((userToken.getLong("token_ed") != passwords.token.expirationData) || userToken.getLong("token_ed") < System.currentTimeMillis()) {
 				LOG.warning("User token has expired.");
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			
-			if(!userToken.getString("token_username").equals(token.username)) {
+			if(!userToken.getString("token_username").equals(passwords.token.username)) {
 				LOG.severe("Token not accepted.");
 				return Response.status(Status.FORBIDDEN).build();
 			}
