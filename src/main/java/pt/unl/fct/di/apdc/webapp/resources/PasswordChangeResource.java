@@ -27,7 +27,7 @@ import pt.unl.fct.di.apdc.webapp.util.PasswordData;
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class PasswordChangeResource {
 	
-private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
+	private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
 	
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
@@ -56,7 +56,7 @@ private static final Logger LOG = Logger.getLogger(LoginResource.class.getName()
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			
-			if(!userToken.getString("token_username").equals(passwords.token.username)) {
+			if(!userToken.getString("token_username").equals(username)) {
 				LOG.severe("Token not accepted.");
 				return Response.status(Status.FORBIDDEN).build();
 			}
