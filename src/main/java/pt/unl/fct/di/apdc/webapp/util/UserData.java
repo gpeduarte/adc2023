@@ -1,6 +1,6 @@
 package pt.unl.fct.di.apdc.webapp.util;
 
-public class UserData {
+public class UserData implements ListingData{
 
     public String username;
     public String email;
