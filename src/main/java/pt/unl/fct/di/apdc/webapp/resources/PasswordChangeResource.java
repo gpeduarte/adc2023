@@ -43,7 +43,7 @@ public class PasswordChangeResource {
 		LOG.info("User " + username + " attempt of changing password");
 		
 		Key userKey = userKeyFactory.newKey(username);
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(passwords.token.tokenID);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(passwords.token.tokenUsername);
 		
 		Transaction txn = datastore.newTransaction();
 		

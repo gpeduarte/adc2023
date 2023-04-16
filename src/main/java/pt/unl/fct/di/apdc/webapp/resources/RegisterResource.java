@@ -48,9 +48,13 @@ public class RegisterResource {
 			Entity user = txn.get(userKey);
 			
 			String role = "user";
+
+			boolean isActive = false;
 			
-			if(data.username.equals("super_user"))
+			if(data.username.equals("super_user")) {
 				role = "su";
+				isActive = true;
+			}
 			
 			if(user != null) {
 				txn.rollback();
@@ -63,7 +67,7 @@ public class RegisterResource {
 						.set("user_email", data.email)
 						.set("user_creation_time", Timestamp.now())
 						.set("user_role", role)
-						.set("user_isActive", false)
+						.set("user_isActive", isActive)
 						.set("user_profile_status", data.profileStatus)
 						.set("user_phone_num", data.phoneNum)
 						.set("user_mobile_phone_num", data.mobilePhone)
