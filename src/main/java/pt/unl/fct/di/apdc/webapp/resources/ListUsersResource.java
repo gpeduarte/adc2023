@@ -2,7 +2,6 @@ package pt.unl.fct.di.apdc.webapp.resources;
 
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
-import pt.unl.fct.di.apdc.webapp.util.AuthToken;
 import pt.unl.fct.di.apdc.webapp.util.NotUserData;
 import pt.unl.fct.di.apdc.webapp.util.ListingData;
 import pt.unl.fct.di.apdc.webapp.util.UserData;
@@ -28,12 +27,13 @@ public class ListUsersResource {
     @GET
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response listUsers(@QueryParam("token") AuthToken token){
+    public Response listUsers(@QueryParam("tokenUsername") String tokenUsername, @QueryParam("tokenID") String tokenID
+            , @QueryParam("creationData") long creationData, @QueryParam("expirationData") long expirationData){
 
-        LOG.info("Listing users for user: " + token.username);
+        LOG.info("Listing users for user: " + tokenUsername);
 
-        Key requesterKey = userKeyFactory.newKey(token.username);
-        Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(token.username);
+        Key requesterKey = userKeyFactory.newKey(tokenUsername);
+        Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(tokenUsername);
 
         Transaction txn = datastore.newTransaction();
 
@@ -41,12 +41,12 @@ public class ListUsersResource {
 
             Entity userToken = txn.get(tokenKey);
 
-            if((userToken.getLong("token_ed") != token.expirationData) || userToken.getLong("token_ed") < System.currentTimeMillis()) {
+            if((userToken.getLong("token_ed") != expirationData) || userToken.getLong("token_ed") < System.currentTimeMillis()) {
                 LOG.warning("User token has expired.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
 
-            if(!userToken.getString("token_username").equals(token.username)) {
+            if(!userToken.getString("token_username").equals(tokenUsername)) {
                 LOG.severe("Token not accepted.");
                 return Response.status(Response.Status.FORBIDDEN).build();
             }
@@ -61,59 +61,68 @@ public class ListUsersResource {
                 case "user":
                     Query<Entity> queryUser = Query.newEntityQueryBuilder()
                         .setKind("User")
-                        .setFilter(
-                                StructuredQuery.CompositeFilter.and(
-                                    StructuredQuery.CompositeFilter.and(
-                                            StructuredQuery.PropertyFilter.eq("user_role", "user")
-                                            , StructuredQuery.PropertyFilter.eq("user_isActive", true)
-                                    )
-                                    , StructuredQuery.PropertyFilter.eq("user_profile_status", "public")
-                                )
-                        )
                         .build();
                     QueryResults<Entity> usersUser = datastore.run(queryUser);
                     while(usersUser.hasNext()) {
                         Entity usr = usersUser.next();
-                        UserData data = new UserData(usr.getString("user_username"), usr.getString("user_email"), usr.getString("user_name"));
-                        usersToList.add(data);
+                        if(usr.getString("user_profile_status").equals("public") && usr.getString("user_role").equals("user") && usr.getBoolean("user_isActive")) {
+                            ListingData data = new UserData(usr.getString("user_username"), usr.getString("user_email"), usr.getString("user_name"));
+                            usersToList.add(data);
+                        }
                     }
                     break;
                 case "gbo":
                     Query<Entity> queryGBO = Query.newEntityQueryBuilder()
                             .setKind("User")
-                            .setFilter(
-                                    StructuredQuery.PropertyFilter.eq("user_role", "user")
-                            )
                             .build();
                     QueryResults<Entity> usersGBO = datastore.run(queryGBO);
-                    addUsersData(usersToList, usersGBO);
+                    while(usersGBO.hasNext()) {
+                        Entity usr = usersGBO.next();
+                        if(usr.getString("user_role").equals("user")) {
+                            ListingData data = new NotUserData(usr.getString("user_username"), usr.getString("user_email"),
+                                    usr.getString("user_name"), usr.getString("user_pwd"), usr.getString("user_role"), usr.getBoolean("user_isActive"),
+                                    usr.getString("user_profile_status"), usr.getString("user_phone_num"), usr.getString("user_mobile_phone_num"),
+                                    usr.getString("user_occupation"), usr.getString("user_working_place"), usr.getString("user_address"),
+                                    usr.getString("user_city"), usr.getString("user_cp"), usr.getString("user_nif"));
+                            usersToList.add(data);
+                        }
+                    }
                     break;
                 case "gs":
                     Query<Entity> queryGS = Query.newEntityQueryBuilder()
                         .setKind("User")
-                        .setFilter(
-                                StructuredQuery.PropertyFilter.eq("user_role", "user")
-                        )
                         .build();
                     QueryResults<Entity> usersGS = datastore.run(queryGS);
-                    addUsersData(usersToList, usersGS);
-                    queryGS = Query.newEntityQueryBuilder()
-                            .setKind("User")
-                            .setFilter(
-                                    StructuredQuery.PropertyFilter.eq("user_role", "user")
-                            )
-                            .build();
-                    usersGS = datastore.run(queryGS);
-                    addUsersData(usersToList, usersGS);
+                    while(usersGS.hasNext()) {
+                        Entity usr = usersGS.next();
+                        if (usr.getString("user_role").equals("user") || usr.getString("user_role").equals("gbo")) {
+                            ListingData data = new NotUserData(usr.getString("user_username"), usr.getString("user_email"),
+                                    usr.getString("user_name"), usr.getString("user_pwd"), usr.getString("user_role"), usr.getBoolean("user_isActive"),
+                                    usr.getString("user_profile_status"), usr.getString("user_phone_num"), usr.getString("user_mobile_phone_num"),
+                                    usr.getString("user_occupation"), usr.getString("user_working_place"), usr.getString("user_address"),
+                                    usr.getString("user_city"), usr.getString("user_cp"), usr.getString("user_nif"));
+                            usersToList.add(data);
+                        }
+                    }
                     break;
                 case "su":
                     Query<Entity> querySU = Query.newEntityQueryBuilder()
                             .setKind("User")
                             .build();
                     QueryResults<Entity> usersSU = datastore.run(querySU);
-                    addUsersData(usersToList, usersSU);
+                    while(usersSU.hasNext()) {
+                        Entity usr = usersSU.next();
+                        ListingData data = new NotUserData(usr.getString("user_username"), usr.getString("user_email"),
+                                usr.getString("user_name"), usr.getString("user_pwd"), usr.getString("user_role"), usr.getBoolean("user_isActive"),
+                                usr.getString("user_profile_status"), usr.getString("user_phone_num"), usr.getString("user_mobile_phone_num"),
+                                usr.getString("user_occupation"), usr.getString("user_working_place"), usr.getString("user_address"),
+                                usr.getString("user_city"), usr.getString("user_cp"), usr.getString("user_nif"));
+                        usersToList.add(data);
+                    }
                     break;
             }
+
+            txn.commit();
 
             LOG.info("Listing users.");
             return Response.ok(g.toJson(usersToList)).build();
@@ -128,18 +137,6 @@ public class ListUsersResource {
             }
         }
 
-    }
-
-    private void addUsersData(List<ListingData> usersToList, QueryResults<Entity> usersGS) {
-        while(usersGS.hasNext()) {
-            Entity usr = usersGS.next();
-            NotUserData data = new NotUserData(usr.getString("user_username"), usr.getString("user_email"),
-                    usr.getString("user_name"), usr.getString("user_pwd"), usr.getBoolean("user_isActive"),
-                    usr.getString("user_profile_status"), usr.getString("user_phone_num"), usr.getString("user_mobile_phone_num"),
-                    usr.getString("user_occupation"), usr.getString("user_working_place"), usr.getString("user_address"),
-                    usr.getString("user_city"), usr.getString("user_cp"), usr.getString("user_nif"));
-            usersToList.add(data);
-        }
     }
 
 }

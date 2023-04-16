@@ -66,7 +66,7 @@ public class LoginResource {
 			Entity user = txn.get(userKey);
 			if(user == null) {
 				LOG.warning("Failed login attempt for username: " + data.username);
-				return Response.status(Status.FORBIDDEN).build();
+				return Response.status(Status.BAD_REQUEST).build();
 			}
 			
 			Entity stats = txn.get(ctrsKey);
@@ -97,11 +97,11 @@ public class LoginResource {
 						.set("user_first_login", stats.getTimestamp("user_first_login"))
 						.set("user_last_login", Timestamp.now())
 						.build();
-				AuthToken token = new AuthToken(data.username);
-				Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(token.username);
+				AuthToken token = new AuthToken(data.username, user.getString("user_role"));
+				Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(token.tokenUsername);
 				Entity tokens = Entity.newBuilder(tokenKey)
 						.set("token_id", token.tokenID)
-						.set("token_username", token.username)
+						.set("token_username", token.tokenUsername)
 						.set("token_cd", token.creationData)
 						.set("token_ed", token.expirationData)
 						.build();

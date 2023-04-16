@@ -1,11 +1,10 @@
 package pt.unl.fct.di.apdc.webapp.util;
 
-public class NotUserData implements ListingData{
+public class GetData implements ListingData{
 
     public String username;
     public String email;
     public String name;
-    public String password;
     public String role;
     public boolean isActive;
     public String profileStatus;
@@ -18,13 +17,16 @@ public class NotUserData implements ListingData{
     public String cp;
     public String nif;
 
-    public NotUserData(String username, String email, String name, String password, String role, boolean isActive,
-                       String profileStatus, String phoneNum, String mobilePhone, String occupation, String workingPlace, String address, String city, String cp, String nif) {
+    public GetData() {
+
+    }
+
+    public GetData(String username, String email, String name, String role, boolean isActive,
+                        String profileStatus, String phoneNum, String mobilePhone, String occupation, String workingPlace, String address, String city, String cp, String nif) {
 
         this.username = username;
         this.email = email;
         this.name = name;
-        this.password = password;
         this.role = role;
         this.isActive = isActive;
         this.profileStatus = profileStatus;

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+</head>
+<body>
+
+    <input type="button" id="back" name="back" onclick="goToMainPage()" value="To Main Page">
+
+<table id="usersTable">
+    <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Name</th>
+        <th>Role</th>
+        <th>isActive</th>
+        <th>Profile Status</th>
+        <th>Phone Num</th>
+        <th>Mobile Phone</th>
+        <th>Occupation</th>
+        <th>Working Place</th>
+        <th>Address</th>
+        <th>City</th>
+        <th>CP</th>
+        <th>NIF</th>
+        <th>Actions</th>
+    </tr>
+</table>
+
+<script>
+    const usersTable = document.getElementById("usersTable");
+
+    function getUsers() {
+
+        let tokenData = JSON.parse(localStorage.getItem("authData"));
+
+        let xhr = new XMLHttpRequest();
+        let url = "/rest/listusers/?tokenUsername=" + tokenData.tokenUsername + "&tokenID="
+            + tokenData.tokenID + "&creationData=" + tokenData.creationData +
+            "&expirationData=" + tokenData.expirationData;
+
+
+        xhr.onreadystatechange = function() {
+
+            if (this.readyState == 4 && this.status == 200) {
+
+                const users = JSON.parse(xhr.response);
+
+                if(tokenData.role === "user"){
+
+                    users.forEach(function(user) {
+
+                        const row = usersTable.insertRow();
+                        const usernameCell = row.insertCell();
+                        const emailCell = row.insertCell();
+                        const nameCell = row.insertCell();
+                        const actionsCell = row.insertCell();
+
+                        usernameCell.innerHTML = user.username;
+                        emailCell.innerHTML = user.email;
+                        nameCell.innerHTML = user.name;
+
+                        const deleteButton = document.createElement("button");
+                        deleteButton.innerHTML = "Delete";
+                        deleteButton.onclick = function() {
+                            deleteUser(user);
+                        };
+                        actionsCell.appendChild(deleteButton);
+                    });
+
+                } else {
+
+                    users.forEach(function (userData){
+
+                        const row = usersTable.insertRow();
+
+                        const usernameCell = row.insertCell();
+                        const emailCell = row.insertCell();
+                        const nameCell = row.insertCell();
+                        const roleCell = row.insertCell();
+                        const activeCell = row.insertCell();
+                        const profStatusCell = row.insertCell();
+                        const phoneCell = row.insertCell();
+                        const mobileCell = row.insertCell();
+                        const occupationCell = row.insertCell();
+                        const workingCell = row.insertCell();
+                        const addressCell = row.insertCell();
+                        const cityCell = row.insertCell();
+                        const cpCell = row.insertCell();
+                        const nifCell = row.insertCell();
+                        const actionsCell = row.insertCell();
+
+                        usernameCell.innerHTML = userData.username;
+                        emailCell.innerHTML = userData.email;
+                        nameCell.innerHTML = userData.name;
+                        roleCell.innerHTML = userData.role;
+                        activeCell.innerHTML = userData.isActive;
+                        profStatusCell.innerHTML = userData.profileStatus;
+                        phoneCell.innerHTML = userData.phoneNum;
+                        mobileCell.innerHTML = userData.mobilePhone;
+                        occupationCell.innerHTML = userData.occupation;
+                        workingCell.innerHTML = userData.workingPlace;
+                        addressCell.innerHTML = userData.address;
+                        cityCell.innerHTML = userData.city;
+                        cpCell.innerHTML = userData.cp;
+                        nifCell.innerHTML = userData.nif;
+
+                        const editButton = document.createElement("button");
+                        editButton.innerHTML = "Edit";
+                        editButton.onclick = function () {
+                            editUser(userData);
+                        };
+                        actionsCell.appendChild(editButton);
+
+                        const deleteButton = document.createElement("button");
+                        deleteButton.innerHTML = "Delete";
+                        deleteButton.onclick = function () {
+                            deleteUser(userData);
+                        };
+                        actionsCell.appendChild(deleteButton);
+                    });
+                }
+
+            }
+        };
+
+        xhr.open("GET", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send();
+    }
+
+    function editUser(user) {
+        window.location.href = "editUser.html?username=" + user.username;
+    }
+
+    function deleteUser(user) {
+
+        let tokenData = JSON.parse(localStorage.getItem("authData"));
+
+        let xhr = new XMLHttpRequest();
+        let url = "/rest/remove/";
+
+        xhr.open("DELETE", url, true);
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+
+                if(xhr.status == 200){
+
+                    alert("User removed successfully!");
+                    window.location.reload();
+
+                }
+
+            }
+        }
+
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        const origData = { delUsername: user.username,
+            username : tokenData.tokenUsername,
+            token: {
+                tokenUsername: tokenData.tokenUsername,
+                tokenID: tokenData.tokenID,
+                creationData: tokenData.creationData,
+                expirationData: tokenData.expirationData
+            } }
+
+        var data = JSON.stringify(origData);
+
+        xhr.send(data);
+
+    }
+
+    function goToMainPage() {
+        window.location.href = "main_page.html";
+    }
+
+    getUsers();
+</script>
+
+</body>
+</html>

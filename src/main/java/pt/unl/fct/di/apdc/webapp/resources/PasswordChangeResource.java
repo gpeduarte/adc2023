@@ -80,7 +80,7 @@ public class PasswordChangeResource {
 						.set("user_username", user.getString("user_username"))
 						.set("user_email", user.getString("user_email"))
 						.set("user_name", user.getString("user_name"))
-						.set("user_pwd", user.getString("user_pwd"))
+						.set("user_pwd", DigestUtils.sha3_512Hex(passwords.newPassword))
 						.set("user_creation_time", user.getTimestamp("user_creation_time"))
 						.set("user_role", user.getString("user_role"))
 						.set("user_isActive", user.getBoolean("user_isActive"))

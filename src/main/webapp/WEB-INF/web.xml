@@ -27,12 +27,12 @@
 			<param-name>jersey.config.server.provider.classnames</param-name>
 			<param-value>pt.unl.fct.di.apdc.webapp.filters.AdditionalResponseHeadersFilter</param-value>
 		</init-param>
-		
+
 		<init-param>
 			<param-name>jersey.config.servlet.filter.contextPath</param-name>
 			<param-value>/rest/*</param-value>
 		</init-param>
-		
+
 		<init-param>
 			<param-name>jersey.config.server.provider.packages</param-name>
 			<param-value>pt.unl.fct.di.apdc.webapp.resources</param-value>
@@ -41,11 +41,6 @@
 		<init-param>
 			<param-name>jersey.config.server.provider.scanning.recursive</param-name>
 			<param-value>false</param-value>
-		</init-param>
-		
-		<init-param>
-			<param-name>jersey.config.servlet.filter.contextPath</param-name>
-			<param-value>/rest/*</param-value>
 		</init-param>
 
 		<init-param>
@@ -59,6 +54,5 @@
 		<servlet-name>MainServices</servlet-name>
 		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
-			
 
 </web-app>

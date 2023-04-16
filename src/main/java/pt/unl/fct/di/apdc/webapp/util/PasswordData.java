@@ -6,7 +6,11 @@ public class PasswordData {
 	
 	public String oldPassword;
 	public String newPassword;
-	
+
+	public PasswordData(){
+
+	}
+
 	public PasswordData(String oldPassword, String newPassword, AuthToken token) {
 		this.oldPassword = oldPassword;
 		this.newPassword = newPassword;

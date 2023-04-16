@@ -41,11 +41,12 @@ public class RemoveUserResource {
 		LOG.info("Deletion of user: " + data.delUsername + " by user: " + data.username);
 		
 		Key userKey = userKeyFactory.newKey(data.username);
+		Key userTokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
 		Key delUserKey = userKeyFactory.newKey(data.delUsername);
 		Key delUserTokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.delUsername);
 		Key delUserStatsKey = datastore.newKeyFactory().addAncestors(PathElement.of("User", data.delUsername)).setKind("UserStats").newKey("counters");
 		Key delUserLogKey = datastore.newKeyFactory().addAncestors(PathElement.of("User", data.delUsername)).setKind("UserLog").newKey("logs");
-		
+
 		Transaction txn = datastore.newTransaction();
 		
 		try {
@@ -57,14 +58,14 @@ public class RemoveUserResource {
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			
-			Entity userToken = txn.get(datastore.newKeyFactory().setKind("Tokens").newKey(data.username));
+			Entity userToken = txn.get(userTokenKey);
 			
 			if((userToken.getLong("token_ed") != data.token.expirationData) || userToken.getLong("token_ed") < System.currentTimeMillis()) {
 				LOG.warning("User token has expired.");
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			
-			if(!userToken.getString("token_username").equals(data.token.username)) {
+			if(!userToken.getString("token_username").equals(data.token.tokenUsername)) {
 				LOG.severe("Token not accepted.");
 				return Response.status(Status.FORBIDDEN).build();
 			}
@@ -87,7 +88,6 @@ public class RemoveUserResource {
 			txn.delete(delUserKey);
 			
 			txn.commit();
-			
 			
 			LOG.info("User " + data.delUsername + " removed successfully");
 			return Response.ok().build();

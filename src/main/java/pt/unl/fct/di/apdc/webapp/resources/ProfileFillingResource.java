@@ -41,9 +41,9 @@ public class ProfileFillingResource {
 		
 		Key userKey = userKeyFactory.newKey(username);
 		
-		Key updaterKey = userKeyFactory.newKey(data.updater);
+		Key updaterKey = userKeyFactory.newKey(data.token.tokenUsername);
 		
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.updater);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.token.tokenUsername);
 		
 		Transaction txn = datastore.newTransaction();
 		
@@ -65,7 +65,7 @@ public class ProfileFillingResource {
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			
-			if(!userToken.getString("token_username").equals(data.token.username)) {
+			if(!userToken.getString("token_username").equals(data.token.tokenUsername)) {
 				LOG.severe("Token not accepted.");
 				return Response.status(Status.FORBIDDEN).build();
 			}
@@ -74,7 +74,34 @@ public class ProfileFillingResource {
 				LOG.severe("User does not have permissions to update the profile.");
 				return Response.status(Status.FORBIDDEN).build();		
 			}
-			
+
+			if(getRoleId(data.role) >= getRoleId(updater.getString("user_role"))){
+				LOG.severe("User cannot give role to user.");
+				return Response.status(Status.FORBIDDEN).build();
+			}
+
+			String newEmail = null;
+			if(data.email != null)
+				newEmail = data.email;
+			else
+				newEmail = user.getString("user_email");
+
+			String newName = null;
+			if(data.name != null)
+				newName = data.name;
+			else
+				newName = user.getString("user_name");
+
+			String newRole = null;
+			if(data.role != null)
+				newRole = data.role;
+			else
+				newRole = user.getString("user_role");
+
+			boolean newActive = user.getBoolean("user_isActive");
+			if(data.isActive != newActive)
+				newActive = data.isActive;
+
 			String newProfileStatus = null;
 			if(data.profileStatus != null)
 				newProfileStatus = data.profileStatus;
@@ -131,11 +158,11 @@ public class ProfileFillingResource {
 				
 			user = Entity.newBuilder(userKey)
 					.set("user_username", user.getString("user_username"))
-					.set("user_email", user.getString("user_email"))
-					.set("user_name", user.getString("user_name"))
+					.set("user_email", newEmail)
+					.set("user_name", newName)
 					.set("user_pwd", user.getString("user_pwd"))
 					.set("user_creation_time", user.getTimestamp("user_creation_time"))
-					.set("user_role", user.getString("user_role"))
+					.set("user_role", newRole)
 					.set("user_isActive", user.getBoolean("user_isActive"))
 					.set("user_profile_status", newProfileStatus)
 					.set("user_phone_num", newPhoneNum)

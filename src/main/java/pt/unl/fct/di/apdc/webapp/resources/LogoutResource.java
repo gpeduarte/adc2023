@@ -33,9 +33,9 @@ public class LogoutResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response doLogout(AuthToken token) {
 		
-		LOG.info("User " + token.username + " logging out.");
+		LOG.info("User " + token.tokenUsername + " logging out.");
 		
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(token.tokenID);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(token.tokenUsername);
 		
 		Transaction txn = datastore.newTransaction();
 		

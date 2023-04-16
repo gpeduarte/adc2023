@@ -4,38 +4,104 @@
 <head>
     <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
     <title>Main Page</title>
+
+    <style>
+        h1 {text-align: center;}
+        #token {border: 2px solid black}
+    </style>
+
 </head>
 
 <body>
 
-    <style>
-        h1 {text-align: center;}
-    </style>
+    <input type="button" id="logout" name="logout" onclick="doLogout()" value="Logout">
+    <input type="button" id="pwdChange" name="pwdChange" onclick="goToChangePwd()" value="Change Passwords">
 
     <h1>Welcome to the Project Main Page</h1>
 
-    <style>
-        div {border: 1px solid black}
-    </style>
-
     <div id="token">
 
-            <h3> Your Token: </h3>
+        <h3> Your Token: </h3>
+
+        Username:
+        <span id="username"></span>
+        <p></p>
+
+        TokenID:
+        <span id="tokenID"></span>
+        <p></p>
+
+        Token Creation Time:
+        <span id="creationData"></span>
+        <p></p>
+
+        Token Expiration Time:
+        <span id="expirationData"></span>
 
     </div>
+
+    <p></p>
+    <p></p>
+
+    <a href="users.html">Users List</a>
 
 </body>
 
 <script>
 
-    if(this.status == 200){
-        
-        var tokenDiv = document.getElementById("token");
+    let tokenData = JSON.parse(localStorage.getItem("authData"));
 
-        console.log(localStorage.getItem('token'));
+    if(tokenData.hasOwnProperty('role')) {
 
-        tokenDiv.appendChild(localStorage.getItem('token'));
+        let userRole = tokenData.role;
 
+        if (userRole === "user") {
+            const divElement = document.getElementById("token").style.border = '2px solid green';
+        } else if (userRole === "gbo"){
+            const divElement = document.getElementById("token").style.border = '2px solid yellow';
+        } else if (userRole === "gs"){
+            const divElement = document.getElementById("token").style.border = '2px solid orange';
+        } else if (userRole === "su"){
+            const divElement = document.getElementById("token").style.border = '2px solid red';
+        }
+
+        document.getElementById("username").innerHTML = tokenData.tokenUsername;
+        document.getElementById("tokenID").innerHTML = tokenData.tokenID;
+        document.getElementById("creationData").innerHTML = tokenData.creationData;
+        document.getElementById("expirationData").innerHTML = tokenData.expirationData;
+
+    }
+
+    function goToChangePwd() {
+        window.location.href = "password_change.html?username=" + tokenData.tokenUsername;
+    }
+
+    function doLogout() {
+        let xhr = new XMLHttpRequest();
+        let url = "/rest/logout/";
+
+        xhr.open("DELETE", url, true);
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+
+                if(xhr.status == 200){
+                    localStorage.removeItem("authData");
+                    window.location.href="enter_page.html";
+
+                }
+            }
+        }
+
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        const obj = JSON.parse(localStorage.getItem("authData"));
+
+        const origData = { tokenUsername: obj.tokenUsername, tokenID: obj.tokenID, creationData: obj.creationData, expirationData: obj.expirationData };
+
+        var data = JSON.stringify(origData);
+
+        xhr.send(data);
     }
 
 </script>

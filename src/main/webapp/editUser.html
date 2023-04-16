@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
-    <title>Register Page</title>
+    <title>Edit Profile</title>
 
     <style>
         h1 {text-align: center;}
@@ -44,17 +44,13 @@
 
 <body>
 
-<h1>Register</h1>
-<div class="center">
-    <p>Already have an account? <a href="login_page.html">Login</a></p>
-</div>
+<input type="button" id="back" name="back" onclick="goToUsersList()" value="To Users List">
+
+<h1>Edit Profile</h1>
 
 <div class="container">
 
     <form>
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username" size="50"/>
-        <span class="validationErrors" id="usernameError"></span><br>
 
         <label for="email">Email</label>
         <input type="email" name="email" id="email" size="50"/>
@@ -64,12 +60,21 @@
         <input type="text" name="name" id="name" size="50"/>
         <span class="validationErrors" id="nameError"></span><br>
 
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" size="50"/>
-        <span class="validationErrors" id="passwordError"></span><br>
+        <label for="role">Role</label>
+        <select name="role" id="role">
+            <option value="">choose role</option>
+            <option value="user">User</option>
+            <option value="gbo">GBO</option>
+            <option value="gs">GS</option>
+            <option value="su">SU</option>
+        </select>
 
-        <label for="confirmPassword">Confirm Password</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" size="50"/>
+        <label for="accountStatus">Account Status</label>
+        <select name="profileStatus" id="accountStatus">
+            <option value="">choose profile</option>
+            <option value="public">Público</option>
+            <option value="private">Privado</option>
+        </select>
 
         <label for="profileStatus">Profile</label>
         <select name="profileStatus" id="profileStatus">
@@ -120,19 +125,53 @@
         <input type="text" id="nif" name="nif" size="50" />
         <span class="validationErrors" id="nifError"></span><br>
 
-        <input type="button" id="register" name="submit" onclick="submitRegister()" value="Register">
+        <input type="button" id="register" name="submit" onclick="submitEdit()" value="Register">
     </form>
 </div>
 
 <script>
 
-    function submitRegister() {
+    const updated = new URLSearchParams(window.location.search).get('username');
 
-        let username = document.getElementById('username').value;
+    let xhr = new XMLHttpRequest();
+    let url = "/rest/getuser/?username=" + updated;
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+
+            if(xhr.status == 200){
+
+                const user = JSON.parse(xhr.response);
+
+                document.getElementById("email").value = user.email;
+                document.getElementById("name").value = user.name;
+                document.getElementById("role").value = user.role;
+                document.getElementById("accountStatus").value = user.isActive;
+                document.getElementById("profileStatus").value = user.profileStatus;
+                document.getElementById("phoneNum").value = user.phoneNum;
+                document.getElementById("mobilePhone").value = user.mobilePhone;
+                document.getElementById("occupation").value = user.occupation;
+                document.getElementById("workingPlace").value = user.workingPlace;
+                document.getElementById("address").value = user.address;
+                document.getElementById("city").value = user.city;
+                document.getElementById("cp").value = user.cp;
+                document.getElementById("nif").value = user.nif;
+
+            }
+        }
+    }
+
+    xhr.open("GET", url, true);
+
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    xhr.send();
+
+    function submitEdit() {
+
         let email = document.getElementById('email').value;
         let name = document.getElementById('name').value;
-        let password = document.getElementById("password").value;
-        let confirmPassword = document.getElementById("confirmPassword").value;
+        let role = document.getElementById("role").value;
         let profileStatus = document.getElementById("profileStatus").value;
         let phoneNum = document.getElementById("phoneNum").value;
         let mobilePhone = document.getElementById("mobilePhone").value;
@@ -145,26 +184,32 @@
 
         document.getElementsByClassName("validationErrors").innerHTML = "";
 
-        if (!validate(username, email, name, password, confirmPassword, phoneNum, mobilePhone, occupation, workingPlace, address, city, cp, nif)) {
+        let passwordToPass = "Gonca123!";
+
+        if (!validate(updated, email, name, passwordToPass, passwordToPass, phoneNum, mobilePhone, occupation, workingPlace, address, city, cp, nif)) {
             return;
         }
 
         let xhr = new XMLHttpRequest();
-        let url = "/rest/register/userregister";
+        let url = "/rest/profile/" + updated;
 
         xhr.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                window.location.href = "login_page.html";
+
+                alert("Operation successful!");
+                window.location.href = "/users.html";
+
             }
         };
+
+        let tokenObj = JSON.parse(localStorage.getItem("authData"));
 
         xhr.open("POST", url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.send(JSON.stringify({
-            "username": username,
             "email": email,
             "name": name,
-            "password": password,
+            "role": role,
             "profileStatus": profileStatus,
             "phoneNum": phoneNum,
             "mobilePhone": mobilePhone,
@@ -173,7 +218,13 @@
             "address": address,
             "city": city,
             "cp": cp,
-            "nif": nif
+            "nif": nif,
+            "token": {
+                        "tokenUsername": tokenObj.tokenUsername,
+                        "tokenID": tokenObj.tokenID,
+                        "creationData": tokenObj.creationData,
+                        "expirationData": tokenObj.expirationData
+                    }
         }));
     }
 
@@ -348,6 +399,10 @@
         }
 
         return true;
+    }
+
+    function goToUsersList() {
+        window.location.href = "users.html";
     }
 
 </script>

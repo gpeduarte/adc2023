@@ -3,8 +3,10 @@ package pt.unl.fct.di.apdc.webapp.util;
 public class ProfileData {
 	
 	public AuthToken token;
-	
-	public String updater;
+	public String email;
+	public String name;
+	public String role;
+	public boolean isActive;
 	public String profileStatus;
 	public String phoneNum;
 	public String mobilePhone;
@@ -17,10 +19,13 @@ public class ProfileData {
 	
 	public ProfileData() {}
 	
-	public ProfileData(String updater, String profileStatus, String phoneNum, String mobilePhone, 
+	public ProfileData(String email, String name, String role, boolean isActive, String profileStatus, String phoneNum, String mobilePhone,
 			String occupation, String workingPlace, String address, String city, String cp, String nif, AuthToken token) {
-		
-		this.updater = updater;
+
+		this.email = email;
+		this.name = name;
+		this.role = role;
+		this.isActive = isActive;
 		this.profileStatus = profileStatus;
 		this.phoneNum = phoneNum;
 		this.mobilePhone = mobilePhone;

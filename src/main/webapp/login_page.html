@@ -4,16 +4,20 @@
     <head>
         <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
         <title>Login Page</title>
+        <style>
+            h1 {text-align: center;}
+            .center{text-align: center;}
+            form {text-align: center;}
+        </style>
     </head>
 
     <body>
 
-        <style>
-            h1 {text-align: center;}
-            form {text-align: center;}
-        </style>
-
         <h1>Login</h1>
+
+        <div class="center">
+            <p>Don't have an account yet? <a href="register_page.html">Register</a></p>
+        </div>
 
         <form>
             <label for="username">Username</label>
@@ -23,13 +27,13 @@
 
             <label for="pwd">Password</label>
             <input type="password" name="password" id="pwd" />
+            <span class="validationErrors" id="passwordError"></span><br>
 
             <p></p>
 
-            <button onclick="sendJSON()">Login</button>
+            <input type="button" id="login" name="submit" onclick="sendJSON()" value="Login">
         </form>
 
-        <div id="response"></div>
 
     </body>
 
@@ -48,20 +52,14 @@
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
 
-                    if(xhr.status == 200){
+                    if(xhr.status == 200) {
 
-                        const json = JSON.parse(xhr.responseText);
-                        localStorage.setItem('token', "Username: " + json.username + "\n" + "Role: " + json.role + "\n" + "TokenID: " + json.tokenID + "\n" + "CreationData: " + json.creationData + "\n" + "ExpirationData: " + json.expirationData);
-                        window.location.href="main_page.html";
+                        const json = xhr.responseText;
+                        localStorage.setItem("authData", json);
+                        window.location.href = "main_page.html";
 
-                    } else {
-
-                        var response = document.getElementById("response");
-                        var responseElement = document.createElement("h3");
-
-                        responseElement.innerText = xhr.responseText;
-                        response.appendChild(responseElement);
-
+                    } else if(xhr.status == 403 || xhr.status == 400){
+                        document.getElementById("passwordError").innerHTML = "Username or Password Incorrect.";
                     }
                     
                 }

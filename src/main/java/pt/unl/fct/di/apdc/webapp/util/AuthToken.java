@@ -6,7 +6,9 @@ public class AuthToken {
 
 	public static final long EXPIRATION_TIME = 1000*60*60; //1h
 
-	public String username;
+	public String tokenUsername;
+
+	public String role;
 
 	public String tokenID;
 
@@ -14,9 +16,13 @@ public class AuthToken {
 
 	public long expirationData;
 
-	public AuthToken(String username) {
+	public AuthToken(){}
 
-		this.username = username;
+	public AuthToken(String username, String role) {
+
+		this.tokenUsername = username;
+
+		this.role = role;
 
 		this.tokenID = UUID.randomUUID().toString();
 
